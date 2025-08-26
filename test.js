@@ -1,30 +1,28 @@
-const axios = require('axios');
-const qs = require('qs');
+// Use ES module import
+import axios from 'axios';
 
-const url = 'https://api.zeno.africa';
+// API endpoint
+const url = 'https://zenoapi.com/api/payments/mobile_money_tanzania';
 
 // Data to be sent
 const data = {
-  create_order: 1,
-  buyer_name: 'william',
-  buyer_phone: '0689726060',
+  order_id: '3rer407fe-3ee8-4525-456f-ccb95de38250', // must be unique (UUID recommended)
+  buyer_name: 'William',
+  buyer_phone: '0689726060', // Tanzanian format 07XXXXXXXX
   buyer_email: 'william@zeno.co.tz',
   amount: 1000,
-  account_id: 'zp82240',
-  secret_key: '',
-  api_key: ''
+  webhook_url: 'https://example.com/webhook' // optional, for status updates
 };
 
-// Convert data to x-www-form-urlencoded format
-const formattedData = qs.stringify(data);
-
-axios.post(url, formattedData, {
+// Send POST request to the Zeno API
+axios.post(url, data, {
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
+    'Content-Type': 'application/json',
+    'x-api-key': 'YOUR_API_KEY'  // Replace with your actual API key
   }
 })
   .then(response => {
-    console.log(response.data);
+    console.log('Response:', response.data);
   })
   .catch(error => {
     console.error('Error:', error.response ? error.response.data : error.message);

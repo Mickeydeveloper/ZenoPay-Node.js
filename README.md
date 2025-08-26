@@ -1,132 +1,122 @@
 
+# ZenoPay Mobile Money Tanzania Integration
 
-# ZenoPay API Integration
+This project demonstrates how to integrate with **ZenoPay Mobile Money API** to accept payments in Tanzania.  
+It includes examples of **creating a payment request**, **checking order status**, and **handling webhooks**.
 
-This project demonstrates how to send a POST request to the ZenoPay API using Node.js with the Axios library. It sends an order creation request to the API and logs the response or any errors encountered.
+---
 
-## Requirements
+## 📌 Requirements
+- Node.js 16+
+- npm or yarn
+- [Axios](https://www.npmjs.com/package/axios)
 
-- Node.js (v14 or higher)
-- npm (Node Package Manager)
+Install dependencies:
 
-## Installation
+```bash
+npm install axios
+````
 
-1. **Clone the Repository**
+---
 
-   ```bash
-   git clone <repository-url>
-   cd <repository-folder>
-   ```
+## 🚀 Create Payment Request
 
-2. **Install Dependencies**
+```javascript
+import axios from 'axios';
 
-   ```bash
-   npm install axios qs
-   ```
+const url = 'https://zenoapi.com/api/payments/mobile_money_tanzania';
 
-## Configuration
-
-Update the `data` object in the `index.js` file with your ZenoPay API credentials and order details:
-
-- `buyer_name`: The name of the buyer.
-- `buyer_phone`: The phone number of the buyer.
-- `buyer_email`: The email address of the buyer.
-- `amount`: The amount to be charged.
-- `account_id`: Your ZenoPay account ID.
-- `secret_key`: Your ZenoPay API secret key (if required).
-- `api_key`: Your ZenoPay API key.
-
-## Usage
-
-1. **Create the `index.js` File**
-
-   Save the following code to `index.js`:
-
-   ```javascript
- // Use ES module import
-import axios from 'axios';  // Import axios
-import qs from 'qs';         // Import qs (for x-www-form-urlencoded)
-
-const url = 'https://api.zeno.africa';
-
-// Data to be sent
+// Payment request payload
 const data = {
-  buyer_name: 'william',
-  buyer_phone: '0689726060',
+  order_id: '3rer407fe-3ee8-4525-456f-ccb95de38250', // Unique transaction ID (UUID recommended)
+  buyer_name: 'William',
+  buyer_phone: '0689726060', // Tanzanian number format 07XXXXXXXX
   buyer_email: 'william@zeno.co.tz',
   amount: 1000,
-  account_id: 'zp82240',
-  secret_key: 'YOUR_SECRET_KEY',  // Replace with your actual secret key
-  api_key: 'YOUR_API_KEY'         // Replace with your actual API key
+  webhook_url: 'https://example.com/webhook' // Optional, to receive payment status updates
 };
 
-// Convert data to x-www-form-urlencoded format
-const formattedData = qs.stringify(data);
-
-// Send POST request to the Zeno API
-axios.post(url, formattedData, {
+// Send request
+axios.post(url, data, {
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
+    'Content-Type': 'application/json',
+    'x-api-key': 'YOUR_API_KEY' // Replace with your actual API key
   }
 })
-  .then(response => {
-    console.log('Response:', response.data);
-  })
-  .catch(error => {
-    console.error('Error:', error.response ? error.response.data : error.message);
-  });
+  .then(response => console.log('Response:', response.data))
+  .catch(error => console.error('Error:', error.response ? error.response.data : error.message));
+```
 
-   ```
+---
 
-WEBHOOK
+## 📡 Check Order Status
 
+You can query the status of a payment using the `order_id`:
 
-const http = require('http');
-const fs = require('fs');
+```javascript
+const statusUrl = 'https://zenoapi.com/api/payments/order-status';
+const orderId = '3rer407fe-3ee8-4525-456f-ccb95de38250';
 
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST') {
-    let data = '';
+axios.get(`${statusUrl}?order_id=${orderId}`, {
+  headers: { 'x-api-key': 'YOUR_API_KEY' }
+})
+  .then(response => console.log('Order Status:', response.data))
+  .catch(error => console.error('Error:', error.response ? error.response.data : error.message));
+```
 
-    // Collect the raw POST data
-    req.on('data', chunk => {
-      data += chunk;
-    });
+Sample response:
 
-    req.on('end', () => {
-      // Log the raw data with a timestamp
-      const logEntry = `[${new Date().toISOString()}] WebHook Data: ${data}\n`;
-      fs.appendFile('weblogs.txt', logEntry, err => {
-        if (err) {
-          console.error('Error writing to file:', err);
-        }
-      });
+```json
+{
+  "reference": "0936183435",
+  "resultcode": "000",
+  "result": "SUCCESS",
+  "message": "Order fetch successful",
+  "data": [
+    {
+      "order_id": "3rer407fe-3ee8-4525-456f-ccb95de38250",
+      "amount": "1000",
+      "payment_status": "COMPLETED",
+      "channel": "MPESA-TZ",
+      "transid": "CEJ3I3SETSN",
+      "reference": "0936183435",
+      "msisdn": "255744963858"
+    }
+  ]
+}
+```
 
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Webhook received');
-    });
-  } else {
-    res.writeHead(405, { 'Content-Type': 'text/plain' });
-    res.end('Method Not Allowed');
+---
+
+## 🔔 Webhook Setup
+
+To automatically receive notifications when a payment is **COMPLETED**, include a `webhook_url` in your payment request.
+
+ZenoPay will POST to your webhook with this payload:
+
+```json
+{
+  "order_id": "677e43274d7cb",
+  "payment_status": "COMPLETED",
+  "reference": "1003020496",
+  "metadata": {
+    "product_id": "12345",
+    "custom_notes": "Please gift-wrap this item."
   }
-});
+}
+```
 
-const PORT = 3000;
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+Verify the request by checking the `x-api-key` header to ensure it comes from ZenoPay.
 
+---
 
-2. **Run the Script**
+## 📧 Support
 
-   ```bash
-   node index.js
-   ```
+* Email: [support@zenoapi.com](mailto:support@zenoapi.com)
+* Website: [https://zenoapi.com](https://zenoapi.com)
 
-## Error Handling
+---
 
-Errors during the API request are logged to the console. Check the `error.response` object for detailed information if available.
+**ZenoPay – Simplifying Digital Payments in Tanzania 🇹🇿**
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
