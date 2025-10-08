@@ -7,9 +7,9 @@ const url = 'https://zenoapi.com/api/payments/mobile_money_tanzania';
 // Data to be sent
 const data = {
   order_id: '3rer407fe-3ee8-4525-456f-ccb95de38250', // must be unique (UUID recommended)
-  buyer_name: 'William',
-  buyer_phone: '0689726060', // Tanzanian format 07XXXXXXXX
-  buyer_email: 'william@zeno.co.tz',
+  buyer_name: 'Mickey',
+  buyer_phone: '0612130873', // Tanzanian format 07XXXXXXXX
+  buyer_email: 'mickidadyhamza@gmail.com',
   amount: 1000,
   webhook_url: 'https://example.com/webhook' // optional, for status updates
 };
@@ -18,7 +18,7 @@ const data = {
 axios.post(url, data, {
   headers: {
     'Content-Type': 'application/json',
-    'x-api-key': 'YOUR_API_KEY'  // Replace with your actual API key
+    'x-api-key': '_-9POfDu-1GiUe0nRi2BfSBnU6NYgh_NSTKtAu_Oz8kvvOne6EE3TFXsx0eubdpZTVqQDca4HFZ16nohLUJHog'  // Replace with your actual API key
   }
 })
   .then(response => {
